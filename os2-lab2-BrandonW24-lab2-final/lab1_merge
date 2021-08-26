@@ -1,0 +1,17 @@
+#!/usr/bin/python2
+
+import os
+
+LAB1_DIR = "os2-lab1-your_github_username"
+
+def main():
+	os.system("echo Merge Started!")
+	os.system("cp -f ../%s/kern/kdebug.c ./kern/" % LAB1_DIR)
+	os.system("cp -f ../%s/kern/monitor.c ./kern/" % LAB1_DIR)
+	os.system("cp -f ../%s/lib/printfmt.c ./lib/" % LAB1_DIR)
+	os.system("cp -f ../%s/student.info ./" % LAB1_DIR)
+	os.system("echo Merge Done!")
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,46 @@
+Question 1.)
+The purpose of the MPBOOTPHYS macro is to have it translate linked addresses to the physical
+location of that actual memory. mpentry_start is the code offset in this situation while MP_ENTRY_ADDR
+at (0x7000) is where the mpentry.S will be initially loaded. It does not boot from boot.S because it is linked
+at 0x7c00. If this were not the case the code will have high chances of finding a large address well above
+the kernel base and the limitations of it and cause it to fail critically.
+
+Question 2.)
+It seems that using the big kernel lock guarantees that only one CPU can 
+run the kernel code at a time. Why do we still need separate kernel stacks for each 
+CPU? Describe a scenario in which using a shared kernel stack will go wrong, even with 
+the protection of the big kernel lock
+
+Answer :
+Enabling kernel lock guarantees that only one CPU runs kernel code. However, despite thisthe hardware will 
+automatically push registers onto the kernel's stack before even entering or starting up the trap handler.
+This means that if differing CPUs start to share the overall kernel stack and each of them push to that same
+stack at the same time the kernel stack will get corrupted.
+
+
+Question 3.)
+In your implementation of env_run() you should have called lcr3(). Before 
+and after the call to lcr3(), your code makes references (at least it should) to the 
+variable e, the argument to env_run. Upon loading the %cr3 register, the addressing 
+context used by the MMU is instantly changed. But a virtual address (namely e) has 
+meaning relative to a given address context–the address context specifies the physical 
+address to which the virtual address maps. Why can the pointer e be dereferenced both 
+before and after the addressing switch?
+
+Answer :
+The e pointer can be dereferenced both before and after the page directory changes as it is
+a statically mapped address that is located at some point above the kernel base address range.
+When it gets translated it will remain in that location as you change between differing page directories.
+
+
+Question 4.)
+Whenever the kernel switches from one environment to another, it must ensure the 
+old environment’s registers are saved so they can be restored properly later. Why? 
+Where does this happen?
+
+Answer : Saving the environment's old registers allows the kernel to resume it after a pause
+to continue on with the execution of sequences and commands. When entering into the trap handler
+the kernel should have some kind of trapframe that pushes all of the registers and saves the trapframe.
+It occurs before env_pop_tf() where the kernel pops all of the older registers, switching to run older
+environments.
+
